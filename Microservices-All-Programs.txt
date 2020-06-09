@@ -1,0 +1,683 @@
+Program 1: HelloWorld Microservice:
+===================================
+
+
+Step1: Project name: Create a Maven Project with the name: Microservice-DiscoveryServiceServer
+-----
+
+Step 2: Add the following dependencies in pom.xml
+------
+pom.xml:
+========
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.ofss</groupId>
+	<artifactId>MicroserviceDSS</artifactId>
+	<version>Version1</version>
+	<packaging>jar</packaging>
+
+	<name>discovery-microservice-server</name>
+	<description>Microservice discovery server using Spring Boot</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.3.RELEASE</version>
+		<relativePath/>  
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+	
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter</artifactId>
+		</dependency>
+		
+		<!-- Eureka registration server -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-eureka-server</artifactId>
+		</dependency>
+	
+		</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Camden.SR5</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+
+</project>
+
+Step 3:
+-------
+
+Create application.yml file under /main/resources folder:
+
+src/main/resources/application.yml:
+====================================
+
+# Configure this Discovery Server
+eureka:
+  instance:
+    hostname: localhost
+  client: 
+    registerWithEureka: false
+    fetchRegistry: false
+
+# HTTP (Tomcat) port
+server:
+  port: 4567
+
+Step 4:
+-------
+Create MicroServiceDiscoveryServiceServerApplication.java:
+==========================================================
+
+package com.ofss;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
+@SpringBootApplication
+@EnableEurekaServer
+public class MicroServiceDiscoveryServiceServerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(MicroServiceDiscoveryServiceServerApplication.class, args);
+		System.out.println("Discovery Service Server started");
+	}
+}
+
+
+Step 5:
+-------
+
+Right click this and run as Spring Boot Application
+
+Step 6:
+------
+
+Open the browser and point to the URL http://localhost:4567
+
+You should see the Eureka home page
+
+
+
+  
+Step 7:
+-------
+Now, let's create another Maven project for producing HelloWorld microservice and registers in Eureka server.
+
+Create Apache Maven project: Project name: HelloWorldMicroservice
+
+Add the following dependency in pom.xml
+========================================
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.ofss</groupId>
+	<artifactId>HelloWorldMicroservice</artifactId>
+	<version>Version_1</version>
+	<packaging>jar</packaging>
+
+	<name>helloworld-microservice</name>
+	<description>Hello World microservice</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.4.3.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-eureka</artifactId>
+		</dependency>
+
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Camden.SR3</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+
+</project>
+
+Step 8:
+=======
+Create the controller class in this project now:
+
+HelloWorldController.java:
+==========================
+package com.ofss;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class HelloWorldController {
+	@RequestMapping("/hello")
+	public String sayHello()
+	{
+		return "Hello World Microservice";
+	}
+}
+
+Step 9:
+======= 
+  
+src/main/resources/application.yml:
+====================================
+
+### Spring properties
+# Service registers under this name
+spring:
+  application:
+    name: helloworld-microservice
+
+# Discovery Server Access
+eureka:
+    client:
+      serviceUrl:
+        defaultZone: http://localhost:4567/eureka/
+
+# HTTP Server (Tomcat) Port
+server: 
+  port: 4568
+
+
+Step 10:
+=======
+
+Create the main Program:
+
+HelloWorldMicroserviceApplication.java:
+=======================================
+package com.ofss;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+@SpringBootApplication
+@EnableDiscoveryClient
+public class HelloWorldMicroserviceApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(HelloWorldMicroserviceApplication.class, args);
+	}
+}
+ 
+Step 11:
+========
+Right click this main program and run as Spring Boot application
+
+Step 12:
+========
+Refresh the browser which already pointing to the URL: http://localhost:4567/
+After few seconds, you would see that HELLOWORLD-MICROSERVICE is registered with Eureka and see the listing
+
+Step 13:
+========
+
+Click on the home page for this microservice HELLOWORLD-MICROSERVICE
+
+It will be: http://hp:4568/info
+
+But, in the browser, you would see that there is no URI mapping for this in the controller class
+
+Just change the url to:
+
+http://hp:4568/hello
+
+You now can see "Hello World Microservice" message in the browser
+
+------ 
+
+Program 2:
+=========
+Creating Customer Microservice	
+  
+Maven Project Name: For service discovery server, you can keep the same name or create another one
+It's up to you.
+
+  
+Class Name: Microservice-DiscoveryServer
+========================================
+package com.ofss;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
+@SpringBootApplication
+@EnableEurekaServer
+public class MicroserviceDiscoveryServerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(MicroserviceDiscoveryServerApplication.class, args);
+		System.out.println("Discovery Server started");
+	}
+}
+
+  
+
+Now, create Customer microservice:
+
+Create Maven project: Microservice-Customer
+
+pom.xml:
+=======
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.ofss</groupId>
+	<artifactId>Microservice-Customer</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>customer-microservice-server</name>
+	<description>It is microservice server of customers using Spring Boot</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.4.3.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-eureka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Camden.SR3</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+
+</project>
+
+MicroServiceCustomerServerApplication.java:
+==========================================
+package com.ofss;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+@SpringBootApplication
+@EnableDiscoveryClient
+public class MicroServiceCustomerServerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(MicroServiceCustomerServerApplication.class, args);
+	}
+}
+
+/src/resources/application.yml:
+================================
+
+### Spring properties
+# Service registers under this name
+spring:
+  application:
+    name: customers-microservice
+
+# Discovery Server Access
+eureka:
+    client:
+      serviceUrl:
+        defaultZone: http://localhost:1234/eureka/
+
+# HTTP Server (Tomcat) Port
+server: 
+  port: 1235
+
+	
+
+Customer.java (incomplete this code):
+===================================
+
+package com.ofss;
+
+public class Customer {
+	int customerId;
+	String customerName;
+	Address address;
+	
+	// Generate default and parameterized constructors and setters/getters
+}
+
+Address.java (incomplete this code):
+===================================
+
+class Address
+{
+	int flatNo;
+	String streetName;
+	String city;
+	long pinCode;
+
+		// Generate default and parameterized constructors and setters/getters
+}
+
+  
+CustomerController.java:
+========================
+
+package com.ofss;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class CustomerController {
+
+	Address a1=new Address(5,"Golden Globe Apt","Bangalore",560102L);
+	Customer c1=new Customer(1, "Guru", a1);
+
+	Address a2=new Address(23,"Vaswani Techno","Bangalore",560155L);
+	Customer c2=new Customer(2, "Peter", a2);
+
+	Address a3=new Address(14,"SRH Building","Mumbai",234552L);
+	Customer c3=new Customer(1, "Mukul", a3);
+
+	Address a4=new Address(500,"Mantri Apt","Bangalore",560105L);
+	Customer c4=new Customer(1, "Deepak", a4);
+
+	Address a5=new Address(104,"Shobha Apt","Bangalore",560155L);
+	Customer c5=new Customer(1, "Pradeep", a5);
+
+	ArrayList<Customer> allCustomers=new ArrayList(Arrays.asList(c1,c2,c3,c4,c5));
+
+	@RequestMapping(value="/customers",method=RequestMethod.GET)
+	public ArrayList<Customer> getCustomersList()
+	{
+		// Complete the coding
+	}
+	
+	@RequestMapping(value="/customers/{customerid}",method=RequestMethod.GET)
+	public Customer getCustomer(@PathVariable(value="customerid") int customerid)
+	{
+		// Complete the coding
+	}
+
+
+	// Incomplete code
+	public Customer addACustomer() 
+	{
+		// Complete the coding
+	}	
+	
+		@RequestMapping(value="/info",method=RequestMethod.GET)
+	public String info()
+	{
+		String msg="<h1>This is Customer microservice";
+		msg+="<br>This contains info about all customers";
+		msg+="<br>URI: /info to see this information";
+		msg+="<br>URI: /customers to see list of customers";
+		msg+="<br>URI: /customers/custid to see a specific customer<h1>";
+		return msg;
+	}
+
+	
+}
+  
+  
+Program 3: Create Stock microservice:
+======================================
+
+Maven Project name:  Microservice-stock
+
+pom.xml:
+
+Same as above
+
+Stock.java: (incomplete code)
+=============================
+
+package com.ofss;
+
+public class Stock
+{
+	int stockId;
+	String stockName;
+	double stockPrice;
+
+	....
+}
+
+StockController.java:
+=====================
+
+Create 5 stock objects and add into an ArrayList
+
+	@RequestMapping("/stocks")
+	public ArrayList<Stock> listAllStocks()
+	{
+		// write your logic
+	}
+
+	
+	@RequestMapping("/stocks/{stockId}")
+	public Stock getAStock(@PathVariable("stockId") int stockId)
+	{
+		// write your logic
+	}
+	
+MicroServiceStockServerApplication.java:
+=========================================
+It has the main method
+Same as above
+
+Right click this class and run as Spring boot application
+You should now see two microservices got registered in Eureka server
+
+Program 4: Microservices communication:
+=======================================
+
+In MicroServiceCustomerServerApplication.java, add the following:
+
+	public static final String STOCKS_SERVICE_URL = "http://STOCKS-MICROSERVICE";
+	
+	@Bean
+	@LoadBalanced
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+	@Bean
+	public RemoteStockRepository stockRepository(){
+		return new RemoteStockRepository(STOCKS_SERVICE_URL);
+	}
+
+	
+Create a new java class RemoteStockRepository as follows:
+
+
+package com.ofss;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.client.RestTemplate;
+
+public class RemoteStockRepository {
+	
+	@Autowired
+	protected RestTemplate restTemplate;
+	
+	protected String serviceUrl;
+	Stock stocks[];
+	ArrayList<Stock> stockList;
+	
+ 	public RemoteStockRepository(String serviceUrl) {
+		this.serviceUrl = serviceUrl.startsWith("http") ? serviceUrl
+				: "http://" + serviceUrl;
+	}
+	
+	public void getAllStocks() {
+		stocks = restTemplate.getForObject(serviceUrl+"/stocks", Stock[].class);
+		stockList=new ArrayList<Stock>(Arrays.asList(stocks));
+		
+				
+	}
+
+	public Stock getStock(int stockId) {
+		return restTemplate.getForObject(serviceUrl + "/stocks/{stockId}",
+				Stock.class, stockId);
+	}
+
+
+}
+
+In CustomerController.java, do the following changes:
+
+	@Autowired
+	RemoteStockRepository remoteStockRepository;
+
+	
+	Add this new method, which is reponsible for fetching all Stocks for a given customer id
+	
+	
+	@RequestMapping(value="/customers/{customerid}/stocks",method=RequestMethod.GET)
+	public List<Stock> getCustomerStocks(@PathVariable(value="customerid") int customerid)
+	{
+		System.out.println("Entering getCustomerStocks");
+		List<Stock> allStocks=new ArrayList();
+		Customer cust=null;
+		
+		for (Customer c:allCustomers)
+		{
+			if (c.getCustomerId()==customerid)
+			{
+				cust=c;
+			}
+				
+		}
+		int stockIds[]=cust.getStockIds();
+		
+		
+		for (int i=0;i<stockIds.length;i++)
+		{
+		Stock stock=remoteStockRepository.getStock(stockIds[i]);
+		allStocks.add(stock);
+		}
+		return allStocks;
+		
+		
+	}
+
+	

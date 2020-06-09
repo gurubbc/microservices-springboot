@@ -1,0 +1,277 @@
+Spring Boot with JPA
+
+Maven Project Name: SpringBootJPA
+
+pom.xml:
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.ofss</groupId>
+	<artifactId>SpringBootJPA</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.1.2.RELEASE</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
+
+	<dependencies>
+
+
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>oracle</artifactId>
+			<version>11.2.0.2.0</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+
+
+
+	</dependencies>
+
+</project>
+
+
+Employee.java:
+
+package com.ofss;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@Entity
+public class Employee {
+	
+	@Id
+	@Column(name="FIRSTNAME")
+	String firstName; // FIRST_NAME
+	@Column(name="LASTNAME")
+	String lastName;
+	@Column(name="PHONENUMBER")
+	long phoneNumber;
+	@Column(name="EMAILID")
+	String emailId;
+	
+	
+	public Employee() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+
+	public Employee(String firstName, String lastName, long phoneNumber, String emailId) {
+		super();
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.phoneNumber = phoneNumber;
+		this.emailId = emailId;
+	}
+
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+
+	public String getLastName() {
+		return lastName;
+	}
+
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+
+	public long getPhoneNumber() {
+		return phoneNumber;
+	}
+
+
+	public void setPhoneNumber(long phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+
+	public String getEmailId() {
+		return emailId;
+	}
+
+
+	public void setEmailId(String emailId) {
+		this.emailId = emailId;
+	}
+
+
+}
+
+
+EmployeeController.java:
+
+package com.ofss;
+
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class EmployeeController {
+
+	
+	@Autowired
+	EmployeeService es;
+	
+	@RequestMapping(value="/addEmployees", method=RequestMethod.POST)
+	public String m1(@RequestBody Employee emp)
+	{
+//		emp.setFIRSTNAME("Larry");
+//		System.out.println("Reaching controller method /addEmployee");
+//		System.out.println(emp.getFIRSTNAME());
+//		System.out.println(emp.getLASTNAME());
+//		System.out.println(emp.getPHONENUMBER());
+//		System.out.println(emp.getEMAILID());
+		
+		System.out.println("Reaching addEmployees method");
+		es.addEmployee(emp);
+		return "Inserted Successfully";
+		
+	}
+	
+	@RequestMapping(value="/allEmployees", method=RequestMethod.GET)
+	public List<Employee> m2()
+	{
+		System.out.println("allEmployees method is invoked");
+		return es.getAllEmployees();
+		
+	}
+	
+	@RequestMapping(value="/emp/{empName}", method=RequestMethod.GET)
+	public Optional<Employee> m2(@PathVariable("empName") String name)
+	{
+		System.out.println("get one employee method is invoked");
+		return es.getEmployee(name);
+		
+	}
+	
+
+	@RequestMapping(value="/emp/{empName}", method=RequestMethod.DELETE)
+	public void m3(@PathVariable("empName") String name)
+	{
+		System.out.println("emp delete method is invoked");
+		es.deleteEmployee(name);
+		System.out.println("Deleted successfully");
+		
+	}
+
+	
+}
+
+
+EmployeeRepository.java:
+
+package com.ofss;
+
+import org.springframework.data.repository.CrudRepository;
+
+public interface EmployeeRespository extends CrudRepository<Employee, String>{
+
+	
+}
+
+EmployeeService.java:
+
+package com.ofss;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+@Service
+public class EmployeeService {
+
+	@Autowired
+	EmployeeRespository employeeRepository;
+
+	ArrayList<Employee> allEmps=new ArrayList<Employee>();
+	
+	public List<Employee> getAllEmployees()
+	{
+		System.out.println("Returning all employees using Employee Repository");
+		
+		employeeRepository.findAll()
+		.forEach(emp -> allEmps.add(emp));
+		
+		return allEmps;
+	}
+	
+	public Optional<Employee> getEmployee(String name)
+	{
+		return employeeRepository.findById(name);
+	}
+
+	public void addEmployee(Employee emp)
+	{
+		System.out.println("Adding Employee using Employee Repository");
+		
+		
+		employeeRepository.save(emp);
+	}
+
+	public void deleteEmployee(String name) {
+		System.out.println("Deleting employee using Employee Repository  using name");
+		employeeRepository.deleteById(name);
+	}
+}
+
+
+MainApp.java:
+
+package com.ofss;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class MainApp {
+	
+	
+
+	public static void main(String[] args) {
+		SpringApplication.run(MainApp.class,args);
+
+	}
+
+}
+
