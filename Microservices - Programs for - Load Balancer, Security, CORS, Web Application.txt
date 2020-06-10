@@ -1,0 +1,1011 @@
+1) Microservices Load Balancer (using Ribbon):
+==============================================
+
+You should run the Discovery Service (Eureka) first, then do the following:
+
+1st Project: HelloWorld (maven project)
+=======================================
+pom.xml
+=======
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>gen.soc</groupId>
+  <artifactId>HelloWorld</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.4.3.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-eureka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Camden.SR3</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+
+  
+</project>
+
+application.yml
+===============
+
+### Spring properties
+# Service registers under this name
+spring:
+  application:
+    name: helloworld
+
+# Discovery Server Access
+eureka:
+    client:
+      serviceUrl:
+        defaultZone: http://localhost:1234/eureka/
+
+# HTTP Server (Tomcat) Port
+server: 
+  port: 1112
+
+
+MainApp.java:
+=============
+package gen.soc;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
+@SpringBootApplication
+@EnableDiscoveryClient
+public class MainApp {
+
+	public static void main(String[] args) {
+		SpringApplication.run(MainApp.class, args);
+
+	}
+
+}
+
+
+HelloController.java:
+=====================
+package gen.soc;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class HelloController {
+
+	@RequestMapping(method=RequestMethod.GET,value="hello")
+	public String m1()
+	{
+		return "Hello Spring Boot1";
+	}
+}
+
+
+2nd Project: HelloWorld1 (maven project)
+=======================================
+
+pom.xml:
+========
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>gen.soc</groupId>
+  <artifactId>HelloWorld1</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.4.3.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-eureka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Camden.SR3</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+
+  
+  
+</project>
+
+application.yml:
+================
+### Spring properties
+# Service registers under this name
+spring:
+  application:
+    name: helloworld
+
+# Discovery Server Access
+eureka:
+    client:
+      serviceUrl:
+        defaultZone: http://localhost:1234/eureka/
+
+# HTTP Server (Tomcat) Port
+server: 
+  port: 2222
+
+
+HelloWorld1Application.java:
+============================
+
+package soc.gen;
+
+
+import org.springframework.boot.SpringApplication;
+
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+
+@SpringBootApplication
+
+@EnableDiscoveryClient
+
+public class HelloWorld1Application {
+
+	
+	public static void main(String[] args) {
+		
+	SpringApplication.run(HelloWorld1Application.class, args);
+	
+	}
+
+
+}
+
+
+
+HelloController1.java:
+======================
+
+package soc.gen;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class HelloController1 {
+
+	@RequestMapping(method=RequestMethod.GET,value="hello")
+	public String m1()
+	{
+		return "Hello Spring Boot2";
+	}
+}
+
+
+2) Microservices - web application:
+===================================
+
+Project Name: Microservice-Customer (maven)
+
+pom.xml
+=======
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.ofss</groupId>
+	<artifactId>Microservice-Customer</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>customer-microservice-server</name>
+	<description>It is microservice server of customers using Spring Boot</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.4.3.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-eureka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!-- These dependencies enable JSP usage -->
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Camden.SR3</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+
+</project>
+
+
+application.yml:
+================
+### Spring properties
+# Service registers under this name
+spring:
+  application:
+    name: customers-microservice
+  mvc:
+    view:
+      prefix: /WEB-INF/views/
+      suffix: .jsp
+      
+# Discovery Server Access
+eureka:
+    client:
+      serviceUrl:
+        defaultZone: http://localhost:1234/eureka/
+
+# HTTP Server (Tomcat) Port
+server: 
+  port: 1235
+
+# Disable Spring Boot's "Whitelabel" default error page, so we can use our own
+error:
+  whitelabel:
+    enabled: false
+
+src\main\webapp\WEB-INF\views (create this folder manually)
+
+allCustomers.jsp:
+=================
+
+<%@page import="java.util.*, com.ofss.*" %>
+<h1> All Customers View</h1>
+<%
+List<Customer> allCustomers=(List<Customer>)request.getAttribute("allCustomers");
+%>
+<table border="2">
+	<tr>
+		<td>Customer Id</td>
+		<td>Customer Name</td>
+		<td>Flat No</td>
+		<td>Street Name</td>
+		<td>City</td>
+		<td>Pin Code </td>
+		<td>Stock ids </td>
+	</tr>
+
+<%
+	for (Customer c:allCustomers)
+	{
+		%>
+		<tr>
+		<td> <%=c.getCustomerId() %></td>
+		<td> <%=c.getCustomerName() %></td>
+		<td> <%=c.getAddress().getFlatNo()%></td>
+		<td> <%=c.getAddress().getStreetName() %></td>
+		<td> <%=c.getAddress().getCity() %></td>
+		<td> <%=c.getAddress().getPinCode()%></td>
+		<td> <%=c.getStockIds()%> </td>
+		</tr>
+		<%
+	}
+%>	
+	
+</table>
+
+CustomerController.java:
+========================
+
+package com.ofss;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.netflix.ribbon.RibbonClient;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+@Controller
+public class CustomerController {
+
+	@Autowired
+	RemoteStockRepository remoteStockRepository;
+
+	Address a1=new Address(5,"Golden Globe Apt","Bangalore",560102L);
+	int stockIds1[]= {1,2,3};
+	Customer c1=new Customer(1, "Guru", a1,stockIds1);
+
+	Address a2=new Address(23,"Vaswani Techno","Bangalore",560155L);
+	int stockIds2[]= {2,3,4};
+	Customer c2=new Customer(2, "Peter", a2,stockIds2);
+
+	Address a3=new Address(14,"SRH Building","Mumbai",234552L);
+	int stockIds3[]= {3,4,5};
+	Customer c3=new Customer(3, "Mukul", a3,stockIds3);
+
+	Address a4=new Address(500,"Mantri Apt","Bangalore",560105L);
+	int stockIds4[]= {1,3,5};
+	Customer c4=new Customer(4, "Deepak", a4,stockIds4);
+
+	Address a5=new Address(104,"Shobha Apt","Bangalore",560155L);
+	int stockIds5[]= {2,4,5};
+	Customer c5=new Customer(5, "Pradeep", a5, stockIds5);
+
+	ArrayList<Customer> allCustomers=new ArrayList(Arrays.asList(c1,c2,c3,c4,c5));
+
+//	@CrossOrigin
+	@RequestMapping(value="/customers",method=RequestMethod.GET)
+	public String getCustomersList(ModelMap map)
+	{
+		map.addAttribute("allCustomers",allCustomers);
+		return "allCustomers"; // view
+	}
+	
+	@RequestMapping(value="/customers/{customerid}",method=RequestMethod.GET)
+	public String getCustomer(@PathVariable(value="customerid") int customerid, ModelMap map)
+	{
+		Customer cust=null;
+		for (Customer c:allCustomers)
+		{
+			if (customerid==c.getCustomerId())
+				cust=c;
+		}
+		map.addAttribute("singleCustomer", cust);
+		return "ShowACustomer"; // view name 
+	}
+//	
+//	@RequestMapping(value="/customers",method=RequestMethod.POST)
+//	public Customer addACustomer(@RequestBody Customer c)
+//	{
+//		allCustomers.add(c);
+//		return c;
+//	}
+//
+//	@RequestMapping(value="/info",method=RequestMethod.GET)
+//	public String info()
+//	{
+//		String msg="<h1>This is Customer microservice";
+//		msg+="<br>This contains info about all customers";
+//		msg+="<br>URI: /info to see this information";
+//		msg+="<br>URI: /customers to see list of customers";
+//		msg+="<br>URI: /customers/custid to see a specific customer<h1>";
+//		return msg;
+//	}
+//
+//	
+//	@RequestMapping(value="/customers/{customerid}/stocks",method=RequestMethod.GET)
+//	public List<Stock> getCustomerStocks(@PathVariable(value="customerid") int customerid)
+//	{
+//		System.out.println("Entering getCustomerStocks");
+//		List<Stock> allStocks=new ArrayList();
+//		Customer cust=null;
+//		
+//		for (Customer c:allCustomers)
+//		{
+//			if (c.getCustomerId()==customerid)
+//			{
+//				cust=c; // will find out Customer obj for a given cust id
+//			}
+//				
+//		}
+//		int stockIds[]=cust.getStockIds(); // {1,2,3}
+//		
+//		
+//		for (int i=0;i<stockIds.length;i++)
+//		{
+//		Stock stock=remoteStockRepository.getStock(stockIds[i]);
+//		allStocks.add(stock);
+//		}
+//		return allStocks;
+//		
+//		
+//	}
+
+}
+
+
+MicroserviceCustomerServerApplication.java:
+============================================
+
+package com.ofss;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
+
+
+@SpringBootApplication
+@EnableDiscoveryClient
+public class MicroserviceCustomerServerApplication {
+
+	public static final String STOCKS_SERVICE_URL = "http://STOCK-MICROSERVICE";
+	
+	public static void main(String[] args) {
+		SpringApplication.run(MicroserviceCustomerServerApplication.class, args);
+	}
+	
+	@Bean
+	@LoadBalanced
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+	@Bean
+	public RemoteStockRepository accountRepository(){
+		return new RemoteStockRepository(STOCKS_SERVICE_URL);
+	}
+
+}
+
+
+
+
+3)Microservices Security Programs:
+==================================
+
+1. project name: oauth2-demo (maven project)
+
+pom.xml:
+
+<?xml version = "1.0" encoding = "UTF-8"?>
+<project xmlns = "http://maven.apache.org/POM/4.0.0" 
+   xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 
+   http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>com.ofss</groupId>
+   <artifactId>oauth2-demo</artifactId>
+   <version>V1</version>
+   <packaging>jar</packaging>
+   <name>oauth2-security-demo</name>
+   <description>Oauth2 Demo project for Spring Boot</description>
+
+   <parent>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-parent</artifactId>
+      <version>1.5.9.RELEASE</version>
+      <relativePath /> 
+   </parent>
+
+   <properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+      <java.version>1.8</java.version>
+   </properties>
+
+   <dependencies>
+      <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-jdbc</artifactId>
+      </dependency>
+      
+      <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-security</artifactId>
+      </dependency>
+      
+      <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-web</artifactId>
+      </dependency>
+      
+      <dependency>
+         <groupId>org.springframework.security.oauth</groupId>
+         <artifactId>spring-security-oauth2</artifactId>
+      </dependency>
+      
+      <dependency>
+         <groupId>org.springframework.security</groupId>
+         <artifactId>spring-security-jwt</artifactId>
+      </dependency>
+      
+      <dependency>
+         <groupId>com.oracle</groupId>
+         <artifactId>oracle</artifactId>
+         <version>11.2.0.2.0</version>
+      </dependency>
+      
+   </dependencies>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+         </plugin>
+      </plugins>
+   </build>
+   
+</project>
+
+
+application.properties
+
+server.port=8091
+#debug=true
+logging.file=d:/guru/springlogs.log
+#oracle db settings
+spring.datasource.url=jdbc:oracle:thin:@localhost:1521:xe
+spring.datasource.username=system
+spring.datasource.password=Password123456
+spring.datasource.driver-class-name=oracle.jdbc.OracleDriver
+security.oauth2.resource.filter-order=3
+
+UserEntity.java
+
+package com.ofss;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import org.springframework.security.core.GrantedAuthority;
+
+public class UserEntity {
+   private String username;
+   private String password;
+   private Collection<GrantedAuthority> grantedAuthoritiesList = new ArrayList<>();
+   
+   public String getPassword() {
+      return password;
+   }
+   public void setPassword(String password) {
+      this.password = password;
+   }
+   public Collection<GrantedAuthority> getGrantedAuthoritiesList() {
+      return grantedAuthoritiesList;
+   }
+   public void setGrantedAuthoritiesList(Collection<GrantedAuthority> grantedAuthoritiesList) {
+      this.grantedAuthoritiesList = grantedAuthoritiesList;
+   }
+   public String getUsername() {
+      return username;
+   }
+   public void setUsername(String username) {
+      this.username = username;
+   }
+}
+
+CustomUser.java:
+
+package com.ofss;
+
+import org.springframework.security.core.userdetails.User;
+
+public class CustomUser extends User {
+   private static final long serialVersionUID = 1L;
+   public CustomUser(UserEntity user) {
+      super(user.getUsername(), user.getPassword(), user.getGrantedAuthoritiesList());
+   }
+} 
+
+CustomDetailsService.java:
+
+package com.ofss;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+@Service
+public class CustomDetailsService implements UserDetailsService {
+   @Autowired
+   OAuthDao oauthDao;
+
+   @Override
+   public CustomUser loadUserByUsername(final String username) throws UsernameNotFoundException {
+      UserEntity userEntity = null;
+      try {
+         userEntity = oauthDao.getUserDetails(username);
+         CustomUser customUser = new CustomUser(userEntity);
+         return customUser;
+      } catch (Exception e) {
+         e.printStackTrace();
+         throw new UsernameNotFoundException("User " + username + " was not found in the database");
+      }
+   }
+} 
+
+OAuthDao.java:
+
+package com.ofss;
+
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class OAuthDao {
+   @Autowired
+   private JdbcTemplate jdbcTemplate;
+
+   public UserEntity getUserDetails(String username) {
+      Collection<GrantedAuthority> grantedAuthoritiesList = new ArrayList<>();
+      String userSQLQuery = "SELECT * FROM USERSS WHERE USERNAME=?";
+      List<UserEntity> list = jdbcTemplate.query(userSQLQuery, new String[] { username },
+         (ResultSet rs, int rowNum) -> {
+         
+         UserEntity user = new UserEntity();
+         user.setUsername(username);
+         user.setPassword(rs.getString("PASSWORD"));
+         return user;
+      });
+      if (list.size() > 0) {
+         GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_ADMIN");
+         grantedAuthoritiesList.add(grantedAuthority);
+         list.get(0).setGrantedAuthoritiesList(grantedAuthoritiesList);
+         return list.get(0); // 1ST OBJECT
+      }
+      return null;
+   }
+} 
+
+OAuth2Config.java:
+
+package com.ofss;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
+import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
+import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
+import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+
+@Configuration
+public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
+   private String clientid = "guru";
+   private String clientSecret = "guru";
+   private String privateKey = "-----BEGIN RSA PRIVATE KEY-----\r\n" + 
+   		"MIIEowIBAAKCAQEA546PHuj/sPgBlnPRec/t1ThRj7ttzb7I22Pn0X6zXKqPM89m\r\n" + 
+   		"MwD3/JqzXd3UQCCUUlcxFlvSEB4h3XZQW0t0b9V/LkbLtnRKs/7nQ7q5o5oBrhom\r\n" + 
+   		"CrDPt3jmpO+kYnPNR51mNiMXGrGmi/WV5V5NxnRxTI3ECH3CSZiTbWCOvmhEHhhg\r\n" + 
+   		"zIxcmw9B4k3Na/Oh3EfD5SylsIEsZMgqKo0aIb6IlW8m45G04lI0O+17fqi/kugr\r\n" + 
+   		"BT/uMpJ3Oa/Dc7TrbP6eNjzd+TxsQkzhuISVRIrC8wOrFtYvy7D7u1nSjrAnZnKG\r\n" + 
+   		"d7xM4JBlpU53tzeCkjPqFB0/eRERFGavhxMm0wIDAQABAoIBACNwL/s9EZTV//g0\r\n" + 
+   		"tYR9DBsryV/EAaQRZNAe1CW9zFmMSOpW/X8k0M86JeVhw9AkrE6FxZ90YgvRcMFi\r\n" + 
+   		"EB5IyAMtm49LinXcCmrNwjsdYrflJAivO887DC86M6JegrwGmQ4yyqfSawDM235k\r\n" + 
+   		"EZLPAfwzafubXrsl9Awra7S7qFz/cZSI5CRVzELKhBjjXQ1+XkBpVYU++caPB0Nj\r\n" + 
+   		"4sJCye9inKTRniywDpX8XTGyG3SP0Oew26mqSnLXTjxZHUQGqDj24xNYUJKP82/c\r\n" + 
+   		"KMehXxlSyu5qzwx/vQrbgaBIkC72g9RFXZhHtTOdpIMOH5aZzUKyf3aZTnUL4Jru\r\n" + 
+   		"u/g7LiECgYEA93qCzja2hPsyt3MHsutVsaelW/t/lSrKfRkGC6PwemsF4iF92kQK\r\n" + 
+   		"ruW1wPurcZsL+tgadRnCYx+pGJxbZ6p/+YUk+1ikSc0FnWCpArERYbsLQmb6p2R2\r\n" + 
+   		"yfc8bgPy03VUNW07HJ+/nfGKboe6wzDFflVZmEz/rylkmPnEm0KT/FkCgYEA74ez\r\n" + 
+   		"Xd+mjsP7mwpEECtICG7WoOrWYuyAYByPyIIUhyfg0sauz5oCKr1J7ajr/st8Xgk3\r\n" + 
+   		"s02aiPO6bhcx6Wlx43gUixJk3tT2Ls2j2tk/rSn9/WBypN6PI2cZUgxJ1jj9ihK1\r\n" + 
+   		"ms6Cl6xvyDyY5UGmV9b4LYGsD0F5YVEDz5W75wsCgYEAo4P5BZO1CSyImBmTDq7b\r\n" + 
+   		"0iQ46AvGgqLhY8Ky8eICNICeRIlohFzMyj7Q1o/y+X8+bSF4acL5Y1E6Ax7cbiSD\r\n" + 
+   		"pjRI+SHae0DR4uhJA5RHLdHOYLN2DkAdFNkcvnwxZ3Jwj1R66DDNBOjhVKKtzeZd\r\n" + 
+   		"t1lhd3X4wp2Q8FqngwZ8jRECgYA/qwZWUXhoQlfCojvtQFPpSezq4QETUmHdKjpd\r\n" + 
+   		"xZXHRyZPYFhe/kTNL3tTHK9+DoCETlbr5hjJhl9rm+a8cDbBi82KGd2ODXVSg36m\r\n" + 
+   		"UVDHqn3Et7pBcJcDhggI8xM9SfC6nrZ+651yy3b69oB9j7Gzb4SQNAOUGoc1At/M\r\n" + 
+   		"cbR8eQKBgBe59spLxRerx9Ic4yxkic6WxYjNDp+mBD/H3rGL6KKW4PKG2tJy+j1F\r\n" + 
+   		"UydRHA3g1nl71HXXsdWPSZ4JKgh6KNb/GtpJIhIX98lb58op8//ZGmFRoUU0EA6y\r\n" + 
+   		"zwx8wfN8+1V1tgC/CQGMQ0gvYRSMFUqk1B6qkz22XcmAfMDNwLAo\r\n" + 
+   		"-----END RSA PRIVATE KEY-----"; 
+   private String publicKey = "-----BEGIN PUBLIC KEY-----\r\n" + 
+   		"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA546PHuj/sPgBlnPRec/t\r\n" + 
+   		"1ThRj7ttzb7I22Pn0X6zXKqPM89mMwD3/JqzXd3UQCCUUlcxFlvSEB4h3XZQW0t0\r\n" + 
+   		"b9V/LkbLtnRKs/7nQ7q5o5oBrhomCrDPt3jmpO+kYnPNR51mNiMXGrGmi/WV5V5N\r\n" + 
+   		"xnRxTI3ECH3CSZiTbWCOvmhEHhhgzIxcmw9B4k3Na/Oh3EfD5SylsIEsZMgqKo0a\r\n" + 
+   		"Ib6IlW8m45G04lI0O+17fqi/kugrBT/uMpJ3Oa/Dc7TrbP6eNjzd+TxsQkzhuISV\r\n" + 
+   		"RIrC8wOrFtYvy7D7u1nSjrAnZnKGd7xM4JBlpU53tzeCkjPqFB0/eRERFGavhxMm\r\n" + 
+   		"0wIDAQAB\r\n" + 
+   		"-----END PUBLIC KEY-----";
+
+   @Autowired
+   @Qualifier("authenticationManagerBean")
+   private AuthenticationManager authenticationManager;
+   
+   @Bean
+   public JwtAccessTokenConverter tokenEnhancer() {
+      JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+      converter.setSigningKey(privateKey);
+      converter.setVerifierKey(publicKey);
+      return converter;
+   }
+   @Bean
+   public JwtTokenStore tokenStore() {
+      return new JwtTokenStore(tokenEnhancer());
+   }
+   @Override
+   public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+      endpoints.authenticationManager(authenticationManager).tokenStore(tokenStore())
+      .accessTokenConverter(tokenEnhancer());
+   }
+   @Override
+   public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
+      security.tokenKeyAccess("permitAll()").checkTokenAccess("isAuthenticated()");
+   }
+   @Override
+   public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+	   System.out.println("expiry");
+      clients.inMemory()
+      .withClient(clientid)
+      .secret(clientSecret)
+      .scopes("read", "write")
+      .authorizedGrantTypes("password", "refresh_token")
+      .accessTokenValiditySeconds(200);
+   }
+} 
+
+Oauth2DemoApplication.java
+
+package com.ofss;
+
+
+import org.springframework.boot.SpringApplication;
+
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
+
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import org.springframework.web.bind.annotation.RestController;
+
+
+
+@SpringBootApplication
+
+@EnableAuthorizationServer
+
+@EnableResourceServer
+
+@RestController
+
+public class Oauth2DemoApplication {
+	
+public static void main(String[] args) {
+		
+SpringApplication.run(Oauth2DemoApplication.class, args);
+	
+}
+
+	
+
+@RequestMapping(value = "/products", method=RequestMethod.GET)
+	
+public String getProductName() {
+		
+	return "HP Laptop";   
+	}
+
+} 
+
+SecurityConfiguration.java
+
+package com.ofss;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+@Configuration
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+   @Autowired
+   private CustomDetailsService customDetailsService;
+
+   @Bean
+   public PasswordEncoder encoder() {
+      return new BCryptPasswordEncoder();
+   }
+   @Override
+   @Autowired
+   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+      auth.userDetailsService(customDetailsService).passwordEncoder(encoder());
+      
+   }
+   @Override
+   protected void configure(HttpSecurity http) throws Exception {
+      http
+      .authorizeRequests()
+      .anyRequest()
+      .authenticated();
+   }
+   @Override
+   public void configure(WebSecurity web) throws Exception {
+      web.ignoring();
+   }
+   @Override
+   @Bean
+   public AuthenticationManager authenticationManagerBean() throws Exception {
+      return super.authenticationManagerBean();
+   }
+} 
+
+
+--- sample code to generate encoded password ----
+PasswordEncodeGenerator.java:
+
+package com.ofss;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+public class PasswordEncoderGenerator {
+
+  public static void main(String[] args) {
+		String password = "oracle@123";
+		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		String hashedPassword = passwordEncoder.encode(password);
+		System.out.println(hashedPassword+"!");
+  }
+}
+
