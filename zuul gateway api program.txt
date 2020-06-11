@@ -1,0 +1,138 @@
+Zuul gateway api program:
+
+pom.xml:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.1.5.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.ofss</groupId>
+	<artifactId>ZullGatewayAPI</artifactId>
+	<version>V1</version>
+	<name>ZullGatewayAPI</name>
+	<description>Demo for Zuul Gateway</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Greenwich.SR1</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-zuul</artifactId>
+		</dependency>
+
+		
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+
+ZuulGatewayApiApplication.java
+==============================
+
+package com.ofss;
+
+
+import org.springframework.boot.SpringApplication;
+
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
+
+
+@SpringBootApplication
+
+@EnableZuulProxy
+
+@EnableDiscoveryClient
+
+
+public class ZullGatewayApiApplication {
+
+	
+	public static void main(String[] args) {
+		
+		SpringApplication.run(ZullGatewayApiApplication.class, args);
+	
+}
+
+}
+
+
+All routing logic goes to application.yml file
+
+application.yml:
+================
+### Spring properties
+# Service registers under this name
+spring:
+  application:
+    name: APIGateway
+
+# Discovery Server Access
+eureka:
+    client:
+      serviceUrl:
+        defaultZone: http://localhost:1234/eureka/
+
+# HTTP Server (Tomcat) Port
+server: 
+  port: 1237
+
+# Gateway properties
+zuul:
+  routes:
+    stocks:
+      path: /stocks/**
+      service-id: stock-microservice
+      strip-prefix: false
+    customers:
+      path: /customers/**
+      service-id: customers-microservice
+      strip-prefix: false  
+      
+      
